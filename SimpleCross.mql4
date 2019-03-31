@@ -1,59 +1,55 @@
-//+------------------------------------------------------------------+
-//|                                                        SimpleCross.mq4 |
-//|                                                         monakafx |
-//|                                                                  |
-//+------------------------------------------------------------------+
 #property copyright "monakafx"
-#property link      ""
+#property link      "https://github.com/monakafx"
 #property version   "1.00"
 #property strict
-//--- input parameters
-input int      shortPeriod=5;
-input int      longPeriod=25;
-input int      stopLossPips=5;
-input int      takeProfitPips=10;
-//+------------------------------------------------------------------+
-//| Expert initialization function                                   |
-//+------------------------------------------------------------------+
-int OnInit()
-  {
-//---
-   
-//---
-   return(INIT_SUCCEEDED);
-  }
-//+------------------------------------------------------------------+
-//| Expert deinitialization function                                 |
-//+------------------------------------------------------------------+
-void OnDeinit(const int reason)
-  {
-//---
-   
-  }
-//+------------------------------------------------------------------+
-//| Expert tick function                                             |
-//+------------------------------------------------------------------+
-void OnTick()
-  {
-//---
-   // 新たな足形成直後のみ
-   if(Volume[0]>1) return;
-   
-   // 1本前のMA取得
-   double shortMa1 = iMA(NULL, 0, shortPeriod, 0, 0, 0, 1);
-   double longMa1 = iMA(NULL, 0, longPeriod, 0, 0, 0, 1);
-   
-   // 2本前のMA取得
-   double shortMa2 = iMA(NULL, 0, shortPeriod, 0, 0, 0, 2);
-   double longMa2 = iMA(NULL, 0, longPeriod, 0, 0, 0, 2);
-   
-   // MAが交差した場合エントリーする
-   if(shortMa1 < longMa1 && shortMa2 > longMa2){
-      // BUY
-      OrderSend(NULL, OP_BUY, 1, Ask, 3, Ask - stopLossPips / 100.0, Ask + takeProfitPips / 100.0, "BUY", 0, 0, Blue);
-   }else if(shortMa1 > longMa1 && shortMa2 < longMa2){
-      // SELL
-      OrderSend(NULL, OP_SELL, 1, Bid, 3, Bid + stopLossPips / 100.0, Bid - takeProfitPips / 100.0, "SELL", 0, 0, Red);
-   }
-  }
-//+------------------------------------------------------------------+
+
+// 入力パラメータ
+input int shortPeriod    = 5;
+input int longPeriod     = 25;
+input int stopLossPips   = 5;
+input int takeProfitPips = 9;
+
+// 定数
+string SYMBOL = NULL; // 対象通貨ペア(NULLは対象のチャートの通貨ペアを表す)
+
+
+// Tick更新毎に実行されるコールバック関数
+void OnTick() {
+    // 最新のローソクが発生直後でない場合、何もしない
+    is( isNewCandle() ) { return; }
+
+    // 1本前のMAを取得する
+    double shortMa1 = iMA(SYMBOL, 0, shortPeriod, 0, 0, 0, 1);
+    double longMa1 = iMA(SYMBOL, 0, longPeriod, 0, 0, 0, 1);
+
+    // 2本前のMAを取得する
+    double shortMa2 = iMA(SYMBOL, 0, shortPeriod, 0, 0, 0, 2);
+    double longMa2 = iMA(SYMBOL, 0, longPeriod, 0, 0, 0, 2);
+
+    // MAが交差した場合エントリーする
+    if( shortMa1 < longMa1 && shortMa2 > longMa2 ) {
+        // 買いでエントリーする
+
+        // 利確・損切する値段
+        double tp = Ask + takeProfitPips / 100.0;
+        double sl = Ask - stopLossPips / 100.0;
+
+        // 注文を送信する
+        OrderSend( SYMBOL, OP_BUY, 1, Ask, 3, sl, tp, "BUY", 0, 0, Blue );
+    } else if( shortMa1 > longMa1 && shortMa2 < longMa2 ) {
+        // 売りでエントリーする
+
+        // 利確・損切する値段
+        double tp = Bid - takeProfitPips / 100.0;
+        double sl = Bid + stopLossPips / 100.0;
+
+        // 注文を送信する
+        OrderSend( SYMBOL, OP_SELL, 1, Ask, 3, sl, tp, "SELL", 0, 0, Red );
+    }
+}
+
+
+// 最新のローソクが発生した直後か？
+bool isNewCandle() {
+    return Volume[0] == 0;
+}
