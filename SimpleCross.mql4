@@ -6,8 +6,8 @@
 // 入力パラメータ
 input int shortPeriod    = 5;
 input int longPeriod     = 25;
-input int stopLossPips   = 5;
-input int takeProfitPips = 9;
+input int stopLossPips   = 10;
+input int takeProfitPips = 20;
 
 // 定数
 string SYMBOL = NULL; // 対象通貨ペア(NULLは現在のチャートの通貨ペアを表す)
@@ -16,7 +16,7 @@ int TIME_FRAME = PERIOD_CURRENT; // チャートの時間足(PERIOD_CURRENTは�
 // Tick更新毎に実行されるコールバック関数
 void OnTick() {
     // 最新のローソクが発生直後でない場合、何もしない
-    if( isNewCandle() ) { return; }
+    if( !isNewCandle() ) { return; }
 
     // 1本前のMAを取得する
     double shortMa1 = iMA(SYMBOL, TIME_FRAME, shortPeriod, 0, 0, 0, 1);
@@ -51,5 +51,5 @@ void OnTick() {
 
 // 最新のバーが発生した直後か？
 bool isNewCandle() {
-    return Volume[0] == 0;
+    return Volume[0] == 1;
 }
