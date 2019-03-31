@@ -16,7 +16,7 @@ string SYMBOL = NULL; // 対象通貨ペア(NULLは対象のチャートの通�
 // Tick更新毎に実行されるコールバック関数
 void OnTick() {
     // 最新のローソクが発生直後でない場合、何もしない
-    is( isNewCandle() ) { return; }
+    if( isNewCandle() ) { return; }
 
     // 1本前のMAを取得する
     double shortMa1 = iMA(SYMBOL, 0, shortPeriod, 0, 0, 0, 1);
