@@ -10,8 +10,8 @@ input int stopLossPips   = 5;
 input int takeProfitPips = 9;
 
 // 定数
-string SYMBOL = NULL; // 対象通貨ペア(NULLは対象のチャートの通貨ペアを表す)
-
+string SYMBOL = NULL; // 対象通貨ペア(NULLは現在のチャートの通貨ペアを表す)
+int TIME_FRAME = PERIOD_CURRENT; // チャートの時間足(PERIOD_CURRENTは現在のチャートの時間足を表す)
 
 // Tick更新毎に実行されるコールバック関数
 void OnTick() {
@@ -19,12 +19,12 @@ void OnTick() {
     if( isNewCandle() ) { return; }
 
     // 1本前のMAを取得する
-    double shortMa1 = iMA(SYMBOL, 0, shortPeriod, 0, 0, 0, 1);
-    double longMa1 = iMA(SYMBOL, 0, longPeriod, 0, 0, 0, 1);
+    double shortMa1 = iMA(SYMBOL, TIME_FRAME, shortPeriod, 0, 0, 0, 1);
+    double longMa1 = iMA(SYMBOL, TIME_FRAME, longPeriod, 0, 0, 0, 1);
 
     // 2本前のMAを取得する
-    double shortMa2 = iMA(SYMBOL, 0, shortPeriod, 0, 0, 0, 2);
-    double longMa2 = iMA(SYMBOL, 0, longPeriod, 0, 0, 0, 2);
+    double shortMa2 = iMA(SYMBOL, TIME_FRAME, shortPeriod, 0, 0, 0, 2);
+    double longMa2 = iMA(SYMBOL, TIME_FRAME, longPeriod, 0, 0, 0, 2);
 
     // MAが交差した場合エントリーする
     if( shortMa1 < longMa1 && shortMa2 > longMa2 ) {
