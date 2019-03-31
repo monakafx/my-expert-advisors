@@ -49,7 +49,7 @@ void OnTick() {
 }
 
 
-// 最新のローソクが発生した直後か？
+// 最新のバーが発生した直後か？
 bool isNewCandle() {
     return Volume[0] == 0;
 }
