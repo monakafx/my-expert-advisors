@@ -44,7 +44,7 @@ void OnTick() {
         double sl = Bid + stopLossPips / 100.0;
 
         // 注文を送信する
-        OrderSend( SYMBOL, OP_SELL, 1, Ask, 3, sl, tp, "SELL", 0, 0, Red );
+        OrderSend( SYMBOL, OP_SELL, 1, Bid, 3, sl, tp, "SELL", 0, 0, Red );
     }
 }
 
