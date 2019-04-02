@@ -1,0 +1,63 @@
+#property copyright "monakafx"
+#property link      ""
+#property version   "1.00"
+#property strict
+
+#define MAGICMA 1904022359
+
+int ticketId = -1;
+int touchCount = 0;
+
+void OnDeinit(const int reason) {
+   
+}
+
+void OnTick() {
+    // 最新のバーが発生した直後でなければ何もしない
+    if( !isNewCandle() ) return;
+    
+    double sma14 = iMA(NULL, 0, 14, 0, 0, 0, 1);
+    double sma50 = iMA(NULL, 0, 50, 0, 0, 0, 1);
+    
+    // エントリーしていない時にのみ判定処理を行う
+    if( ticketId == -1 ){
+        // SMA14 が SMA50より上に位置していなければ何もしない
+        if( sma14 <= sma50 ) return;
+        
+        // 一本前のローソク足の終値がSMA14とSMA50の間に位置すること
+        if( !(sma50 < Close[1] && Close[1] < sma14) ) return;
+        
+        // 2つ前のローソク足のVolumesが1つ前のローソク足のVolumesより大きいこと
+        if( Volume[2] <= Volume[1] ) return;
+        
+        // ローソク足が下方向にのみヒゲを生やしている&陽線であること
+        if( !(Close[1] == High[1] && Open[1] > Low[1] && Open[1] < Close[1]) ) return;
+        
+        // 買いでエントリーする
+        ticketId = OrderSend( NULL, OP_BUY, 1, Ask, 3, NULL, NULL, "BUY", MAGICMA, 0, Blue );
+        touchCount = 0;
+    } else {
+        // エントリー済みの場合、利確損切チェックを行う
+        // 一つ前のローソク足の終値がSMA50以下の場合損切する
+        if(Close[1] < sma50){
+            OrderClose(ticketId, 1, Bid, 3, Red);
+            ticketId = -1;
+            return;
+        }
+        
+        // SMA14にタッチしたか判定する
+        if( Low[1] <= sma14 && sma14 <= High[1] ) touchCount += 1;
+        
+        // 6回タッチしたらクローズする
+        if( touchCount > 5 ) {
+            OrderClose(ticketId, 1, Bid, 3, Blue);
+            ticketId = -1;
+            return;
+        }
+    }
+}
+
+// 最新のバーが発生した直後か？
+bool isNewCandle() {
+    return Volume[0] == 1;
+}
